@@ -11,9 +11,11 @@ app.use(bodyParser.json())
 const port = process.env.PORT || 3001
 
 const restrictedWords = ['fraud', 'flipping', 'heck', 'gary'];
-const reallyBadWords = [];
+const reallyBadWords = ['sugar'];
+const bannedUsers = ['gary-sucks', 'twilio-sucks'];
 
 let msg;
+let user;
 
 console.log(`bad words: ${restrictedWords}`)
 
@@ -38,15 +40,22 @@ app.all('/filter', (req, res) => {
 app.all('/check-and-filter', (req, res) => {
     console.log(req.body.Body);
     msg = req.body.Body;
+    user = req.body.Author;
     
     if (restrictedWords.some(v => msg.includes(v))) {
-        console.log(`Match using "${msg}"`);
+        console.log(`Match of restricted word using "${msg}"`);
         var newMsg = msg.replace(new RegExp(restrictedWords.join('|'), 'g'), '****');
         console.log(msg.replace(new RegExp(restrictedWords.join('|'), 'g'), '****'));
         res.status(200).json({"body":newMsg, "Body": newMsg});
-    } else {
-        console.log(`No match using "${msg}"`);
-        res.status(200).json();
+    } else if(reallyBadWords.some(v => msg.includes(v))){
+        console.log(`Match of really bad word using "${msg}"`);
+        res.status(200).json({"body":newMsg, "Body": newMsg});
+    } else if(bannedUsers.some(v => user.includes(v))){
+        console.log(`attempted message from banned user: "${user}"`)
+        res.status(401).json({"not allowed":`${user} is banned`})
+    }else {
+        console.log(`No match using "${msg}" from ${user}`);
+        res.status(201).json();
         return;
     }
 
