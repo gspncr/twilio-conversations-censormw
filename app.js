@@ -11,6 +11,8 @@ app.use(bodyParser.json())
 const port = process.env.PORT || 3001
 
 const restrictedWords = ['fraud', 'flipping', 'heck', 'gary'];
+const reallyBadWords = [];
+
 let msg;
 
 console.log(`bad words: ${restrictedWords}`)
@@ -42,13 +44,17 @@ app.all('/check-and-filter', (req, res) => {
         var newMsg = msg.replace(new RegExp(restrictedWords.join('|'), 'g'), '****');
         console.log(msg.replace(new RegExp(restrictedWords.join('|'), 'g'), '****'));
         res.status(200).json({"body":newMsg, "Body": newMsg});
-        return;
     } else {
         console.log(`No match using "${msg}"`);
+        res.status(200).json();
+        return;
     }
 
-    //res.send('welcome, ' + req.body.Author)
 });
+
+app.all('/modqueue', (req, res) => {
+    res.send("//TODO")
+})
 
 const server = app.listen(port, function() {
     console.log("Server running at http://127.0.0.1:" + port + "/");
